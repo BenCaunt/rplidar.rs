@@ -598,6 +598,7 @@ where
             }
 
             end = self.cached_measurement_nodes.len();
+            tokio::task::yield_now().await
         }
 
         let mut out = Vec::<ScanPoint>::with_capacity(end);
