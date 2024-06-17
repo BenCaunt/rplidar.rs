@@ -120,6 +120,7 @@ where
         let start = Instant::now();
 
         while Instant::now() - start < timeout {
+            println!("if this is printing a lot then it is not blocking");
             if let Some(msg) = self.read().await? {
                 return Ok(Some(msg));
             }
