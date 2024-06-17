@@ -115,13 +115,14 @@ where
     /// ```ignore
     /// channel.read_until(Duration::from_secs(1));
     /// ```
-    pub fn read_until(&mut self, timeout: Duration) -> Result<Option<Message>> {
+    pub async fn read_until(&mut self, timeout: Duration) -> Result<Option<Message>> {
         let start = Instant::now();
 
         while Instant::now() - start < timeout {
             if let Some(msg) = self.read()? {
                 return Ok(Some(msg));
             }
+            tokio::task::yield_now().await
         }
 
         Err(RposError::OperationTimeout.into())
@@ -145,9 +146,9 @@ where
     /// ```ignore
     /// let resp = channel.invoke(&Message::new(1), Duration::from_secs(1));
     /// ```
-    pub fn invoke(&mut self, request:&Message, timeout: Duration) -> Result<Option<Message>> {
+    pub async fn invoke(&mut self, request:&Message, timeout: Duration) -> Result<Option<Message>> {
         self.write(request)?;
-        self.read_until(timeout)
+        self.read_until(timeout).await
     }
     
 }
