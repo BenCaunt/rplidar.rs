@@ -90,7 +90,7 @@ where
     ///     println!("{:?}", msg);
     /// }
     /// ```
-    pub fn read(&mut self) -> Result<Option<Message>> {
+    pub async fn read(&mut self) -> Result<Option<Message>> {
         loop {
             self.read_buffer.read_from(&mut self.stream)?;
 
@@ -106,6 +106,7 @@ where
             if msg.is_some() {
                 return Ok(msg);
             }
+            tokio::task::yield_now().await;
         }
     }
 
@@ -119,7 +120,7 @@ where
         let start = Instant::now();
 
         while Instant::now() - start < timeout {
-            if let Some(msg) = self.read()? {
+            if let Some(msg) = self.read().await? {
                 return Ok(Some(msg));
             }
             tokio::task::yield_now().await
